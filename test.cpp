@@ -1,4 +1,5 @@
 #include <iostream>
+#include<vector>
 using namespace std;
 int main()
 {
@@ -17,6 +18,10 @@ int main()
         cout<<freq[i]<<" ";
     }
 
-
+    vector<vector<int>> res;
+    // res[0][0].push_back(1); //not valid
+    // res[0].push_back(1); //valid
+    res[0][0] =1; //valid
+    
     return 0;
 }

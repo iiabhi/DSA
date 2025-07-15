@@ -86,5 +86,13 @@ int main()
 
     cout<<diaSum(mat, row)<<endl;
 
+    vector<vector<int>> matrix = {
+        {1,2,3},
+        {4,5,6},
+        {7,8,9}
+    };
+    matrix[2][3] = 27; // dynamic
+
+    
     return 0;
 }

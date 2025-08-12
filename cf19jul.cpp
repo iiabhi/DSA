@@ -1,49 +1,81 @@
+// #include <bits/stdc++.h>
 #include <iostream>
-
-
 using namespace std;
-using vi = vector<int>;
-using vvi = vector<vector<int>>;
-#define MOD 1000000007
-typedef long long ll;
 
-long long findPow(long long a, long long b) {
-    if(b == 0) return 1;
-    long long half = findPow(a, b/2);
-    long long result = (half * half) % MOD;
-    if(b%2 ==1) result = (result*a) % MOD;
-    return result;
+typedef long long ll;
+#define fastio ios::sync_with_stdio(false); cin.tie(nullptr);
+
+void dfs1(int u, int p, vector<vector<int>>& adj, vector<int>& sz, vector<int>& leaves_down, vector<ll>& ops_down, vector<int>& deg) {
+    sz[u] = 1;
+    leaves_down[u] = (deg[u] == 1);
+    ops_down[u] = 0;
+
+    for (int v : adj[u]) {
+        if (v == p) continue;
+        dfs1(v, u, adj, sz, leaves_down, ops_down, deg);
+        sz[u] += sz[v];
+        leaves_down[u] += leaves_down[v];
+        if (sz[v] > 1) {
+            ops_down[u] += leaves_down[v];
+        }
+    }
 }
 
 void solve() {
     int n;
     cin >> n;
-    vector<pair<ll,ll>> ip(n);
-    vector<pair<ll,ll>> tr(n);
-    for(int i = 0; i < n; i++) {
-        cin >> ip[i].first >> ip[i].second >> tr[i].first >> tr[i].second;
-    }
-    vector<pair<ll,ll>> change(n, pair<ll,ll>({0,0}));
-    for(int i = 0; i < n; i++) {
-        change[i].first = tr[i].first - ip[i].first;
-        change[i].second = tr[i].second - ip[i].second;
-    }
-    ll ans = 0;
-    for(int i = 0; i < n; i++) {
-        if(change[i].second < 0) {
-            ans += abs(change[i].second) + (ip[i].first - abs(min(change[i].first, (ll)0)));
-        }
-        if(change[i].first < 0) {
-            ans += abs(change[i].first);
-        }
-    }
-    cout << ans << endl;
 
+    vector<vector<int>> adj(n + 1);
+    vector<int> deg(n + 1, 0);
 
+    for (int i = 0; i < n - 1; ++i) {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+        deg[u]++;
+        deg[v]++;
+    }
+
+    // Check if graph is star
+    for (int i = 1; i <= n; ++i) {
+        if (deg[i] == n - 1) {
+            cout << 0 << "\n";
+            return;
+        }
+    }
+
+    vector<int> sz(n + 1);
+    vector<int> leaves_down(n + 1);
+    vector<ll> ops_down(n + 1, 0);
+
+    dfs1(1, 0, adj, sz, leaves_down, ops_down, deg);
+
+    ll min_ops = -1;
+    ll total_leaves = leaves_down[1];
+
+    for (int i = 1; i <= n; ++i) {
+        ll current_ops = ops_down[i];
+        if (i != 1) {
+            ll parent_comp_size = n - sz[i];
+            if (parent_comp_size > 1) {
+                current_ops += (total_leaves - leaves_down[i]);
+            }
+        }
+        if (min_ops == -1 || current_ops < min_ops) {
+            min_ops = current_ops;
+        }
+    }
+
+    cout << min_ops << "\n";
 }
 
 int main() {
+    fastio
     int t;
     cin >> t;
-    while (t--) solve();
+    while (t--) {
+        solve();
+    }
+    return 0;
 }
